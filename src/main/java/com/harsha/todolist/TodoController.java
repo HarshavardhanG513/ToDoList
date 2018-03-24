@@ -5,6 +5,7 @@ import java.util.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.harsha.todolist.Todo.TodoTask;
@@ -47,31 +48,29 @@ public class TodoController {
 		todos.add(todo);
 		return todos;
 	}
-	@GetMapping("/todo/1")
-	public String todo1(Model model) {
+	@GetMapping("/todo/{id}")
+	public String todo1(@PathVariable int id,Model model) {
 		Todo todo =new Todo();
-		todo.setId(1);
-		todo.setName("Travel");
-		todo.getTasks().add(new TodoTask(1,"Backpack",false));
-		todo.getTasks().add(new TodoTask(2,"Clothes",false));
-		todo.getTasks().add(new TodoTask(3,"Medicines",false));
-		todo.getTasks().add(new TodoTask(4,"Food",false));
+		todo.setId(id);
+		if(id==1)
+		{
+			todo.setName("Travel");
+			todo.getTasks().add(new TodoTask(1,"Backpack",false));
+			todo.getTasks().add(new TodoTask(2,"Clothes",false));
+			todo.getTasks().add(new TodoTask(3,"Medicines",false));
+			todo.getTasks().add(new TodoTask(4,"Food",false));
+			
+		}else if(id==2)
+		{
+			todo.setName("Shopping List");
+			todo.getTasks().add(new TodoTask(1,"Snacks",false));
+			todo.getTasks().add(new TodoTask(2,"Vegetables",false));
+			todo.getTasks().add(new TodoTask(3,"Medicines",false));
+			todo.getTasks().add(new TodoTask(4,"Stationary",false));	
+		}
 		model.addAttribute("todo",todo);
 		return "todo";
 	}
-	@GetMapping("/todo/2")
-	public String todo2(Model model) {
-		Todo todo =new Todo();
-		todo.setId(2);
-		todo.setName("Shopping List");
-		todo.getTasks().add(new TodoTask(1,"Snacks",false));
-		todo.getTasks().add(new TodoTask(2,"Vegetables",false));
-		todo.getTasks().add(new TodoTask(3,"Medicines",false));
-		todo.getTasks().add(new TodoTask(4,"Stationary",false));
-		model.addAttribute("todo",todo);
-		return "todo";
-	}
-	
 	@GetMapping("/profile")
 	public String profile(
 			@RequestParam(name = "name", required = false, defaultValue = "none")String name,
