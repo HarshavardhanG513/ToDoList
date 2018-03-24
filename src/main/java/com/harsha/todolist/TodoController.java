@@ -24,5 +24,15 @@ public class TodoController {
 	public String todo() {
 		return "todo";
 	}
-
+	@GetMapping("/profile")
+	public String profile(
+			@RequestParam(name = "name", required = false, defaultValue = "none")String name,
+			@RequestParam(name = "age",  required = false,defaultValue="0")Integer age,
+			@RequestParam(name = "occupation",  required = false,defaultValue="none")String occupation,
+			Model model) {
+		model.addAttribute("name", name);
+		model.addAttribute("age",age);
+		model.addAttribute("occupation",occupation);
+		return "profile";
+	}
 }
