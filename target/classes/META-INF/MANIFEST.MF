@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Implementation-Title: ToDoList
 Implementation-Version: 0.0.1-SNAPSHOT
 Built-By: ubi-2
-Implementation-Vendor-Id: com.harsha.todolist
+Implementation-Vendor-Id: com.harsha
 Build-Jdk: 1.8.0_161
 Implementation-URL: https://projects.spring.io/spring-boot/#/spring-bo
  ot-starter-parent/ToDoList
