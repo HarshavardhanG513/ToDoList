@@ -3,20 +3,28 @@ package com.harsha.todolist;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+
+@Entity
+@Table(name = "todo")
 public class Todo {
 
-	public Integer id;
+	@Id
+	@Column(name="id")
+	private Integer id;
+
+	@Column(name="name")
 	private String name;
-	private List<TodoTask> tasks = new ArrayList<Todo.TodoTask>();
 
-	public Todo() {
+	@Column(name="userId")
+	private Integer userId;
 
-	}
-
-	public Todo(int id, String name) {
-		this.id = id;
-		this.name = name;
-	}
+	@OneToMany(mappedBy = "todo")
+	private List<TodoTask> tasks = new ArrayList<TodoTask>();
 
 	public List<TodoTask> getTasks() {
 		return tasks;
@@ -42,43 +50,12 @@ public class Todo {
 		this.name = name;
 	}
 
-	public static class TodoTask {
-		private Integer id;
-		private String name;
-		private boolean completed = false;
-
-		public TodoTask() {
-		}
-
-		public TodoTask(int id, String name, boolean completed) {
-			this.id = id;
-			this.name = name;
-			this.completed = completed;
-		}
-
-		public Integer getId() {
-			return id;
-		}
-
-		public void setId(Integer id) {
-			this.id = id;
-		}
-
-		public String getName() {
-			return name;
-		}
-
-		public void setName(String name) {
-			this.name = name;
-		}
-
-		public boolean isCompleted() {
-			return completed;
-		}
-
-		public void setCompleted(boolean completed) {
-			this.completed = completed;
-		}
-
+	public Integer getUserId() {
+		return userId;
 	}
+
+	public void setUserId(Integer userId) {
+		this.userId = userId;
+	}
+
 }

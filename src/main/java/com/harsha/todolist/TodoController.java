@@ -1,31 +1,27 @@
 package com.harsha.todolist;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PathVariable;
 
-import com.harsha.todolist.Todo.TodoTask;
-import com.premkumar.todo.service.Todo;
+import com.harsha.todolist.TodoTaskDTO;
+import com.harsha.todolist.TodoDTO;
+import com.harsha.todolist.Todo;
+import com.harsha.todolist.TodoTask;
+import com.harsha.todolist.TodoRepository;
+
 
 @Controller
-public class TodoController {
-	
+public class TodoController
+{
 	@Autowired
-	JdbcTemplate jdbcTemplate;
+	TodoRepository todorepository;
 	
 	@GetMapping("/greeting")
 	public String greeting(
@@ -39,47 +35,41 @@ public class TodoController {
 		model.addAttribute("todos",getDataFromDatabase());
 		return "todos";
 	}
-	private List<Todo> getDataFromDatabase() {
-		String select = "select id,name from todo";
-		List<Todo> data = jdbcTemplate.query(select,((rs, rowNum) -> new Todo(rs.getInt("id"), rs.getString("name"))));
-		return CollectionUtils.isEmpty(data) ? Collections.<Todo>emptyList(): data;//if list is empty it returns empty list otherwise returns data
+	private List<TodoDTO> getDataFromDatabase() {
+		return todorepository.findAll().stream().map(t -> {
+			return mapToTaskDTO(t);
+		}).collect(Collectors.toList());
 }
-		
-	private Todo getDataFromDatabaseById(int id) {
-		Todo todo = null;
-		String select = "select id,name from todo where id=?";
-		List<Todo> allTasks=jdbcTemplate.query(select,new PreparedStatementSetter() {//PreparedStatementSetter - used instead of some of the parameters of query
-			@Override
-			public void setValues(PreparedStatement ps) 
+	@GetMapping("/todo/{id}")
+	public String todo(@PathVariable int id, Model model) {
+		TodoDTO todo = getDataFromDatabaseById(id);
+		TodoTaskDTO task;
+		TodoDTO todo_incomplete = new TodoDTO();
+		List<TodoTaskDTO> tasks = new ArrayList<TodoTaskDTO>();
+		for(int i=0;i<todo.getTasks().size();i++)
+		{	
+			task=todo.getTasks().get(i);
+			if(!(task.isCompleted()))
 			{
-				try {
-					ps.setInt(1, id);
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-
+				tasks.add(task);
+				todo_incomplete.setTasks(tasks);
 			}
-		},((rs, rowNum) -> new Todo(rs.getInt("id"), rs.getString("name"))));
-		if(CollectionUtils.isEmpty(allTasks))
-			return null;//return null if its empty
-		select="select id, name,completed from todo_task where todo_id=?";
-		todo=allTasks.get(0);//we only want incomplete tasks (with value=0)
-		List<Todo> tasks = jdbcTemplate.query(select,new PreparedStatementSetter() {
-			@Override
-			public void setValues(PreparedStatement ps) 
-			{
-				try {
-					ps.setInt(1, id);
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-
-			}
-
-		},((rs,rowNo)->new TodoTask(rs.getInt("id"),rs.getString("name"),rs.getBoolean("completed"))));
-		todo.setTasks(tasks);
-		return todo;
-		
+		}
+		todo=todo_incomplete;
+		model.addAttribute("todo", todo);
+		return "todo";
+	}	
+	
+	private TodoDTO getDataFromDatabaseById(int id) {
+		Optional<Todo> findById = todorepository.findById(id);
+		return findById.isPresent() ? mapToTaskDTO(findById.get()) : null;	}
+	
+	private TodoDTO mapToTaskDTO(Todo todo) {
+		TodoDTO todo1 = new TodoDTO(todo.getId(), todo.getName());
+		for (TodoTask task : todo.getTasks()) {
+			todo1.getTasks().add(new TodoTaskDTO(task.getId(), task.getName(), task.isCompleted()));
+		}
+		return todo1;
 	}
 	@GetMapping("/profile")
 	public String profile(
