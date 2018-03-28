@@ -1,7 +1,6 @@
 package com.harsha.todolist;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -11,10 +10,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import com.harsha.todolist.TodoTaskDTO;
+import com.harsha.todolist.Entities.Todo;
+import com.harsha.todolist.Entities.TodoTask;
+import com.harsha.todolist.Repositories.TodoRepository;
 import com.harsha.todolist.TodoDTO;
-import com.harsha.todolist.Todo;
-import com.harsha.todolist.TodoTask;
-import com.harsha.todolist.TodoRepository;
 
 
 @Controller
@@ -23,10 +22,14 @@ public class TodoController
 	@Autowired
 	TodoRepository todorepository;
 	
+	@GetMapping("/")
+	public String Default()
+	{
+		return "redirect:/todos";
+	}
 	@GetMapping("/greeting")
-	public String greeting(
-			@RequestParam(name = "name", required = false, defaultValue = "World") String name,
-			Model model) {
+	public String greeting(@RequestParam(name = "name", required = false, defaultValue = "World") String name,		Model model) 
+	{
 		model.addAttribute("name", name);
 		return "greeting";
 	}
@@ -36,9 +39,13 @@ public class TodoController
 		return "todos";
 	}
 	private List<TodoDTO> getDataFromDatabase() {
-		return todorepository.findAll().stream().map(t -> {
-			return mapToTaskDTO(t);
-		}).collect(Collectors.toList());
+		List<Todo> todo = todorepository.findAll();
+		List<TodoDTO> tododto = new ArrayList<TodoDTO>();
+		for(int i=0;i<todo.size();i++)
+		{
+			tododto.add(mapToTaskDTO(todo.get(i)));
+		}
+		return tododto;
 }
 	@GetMapping("/todo/{id}")
 	public String todo(@PathVariable int id, Model model) {
@@ -62,17 +69,19 @@ public class TodoController
 	
 	private TodoDTO getDataFromDatabaseById(int id) {
 		Optional<Todo> findById = todorepository.findById(id);
-		return findById.isPresent() ? mapToTaskDTO(findById.get()) : null;	}
+		return findById.isPresent() ? mapToTaskDTO(findById.get()) : null;	}//if not empty, convert Todo to TodoDTO and return
 	
-	private TodoDTO mapToTaskDTO(Todo todo) {
-		TodoDTO todo1 = new TodoDTO(todo.getId(), todo.getName());
-		for (TodoTask task : todo.getTasks()) {
-			todo1.getTasks().add(new TodoTaskDTO(task.getId(), task.getName(), task.isCompleted()));
+	private TodoDTO mapToTaskDTO(Todo todo) {//converts Todo to TodoDTO
+		TodoDTO tododto = new TodoDTO(todo.getId(), todo.getName());
+		TodoTask task;
+		for (int i=0;i<todo.getTasks().size();i++) {
+			task=todo.getTasks().get(i);
+			tododto.getTasks().add((new TodoTaskDTO(task.getId(), task.getName(), task.isCompleted())));
 		}
-		return todo1;
+		return tododto;
 	}
-	@GetMapping("/profile")
-	public String profile(
+		@GetMapping("/profile")
+		public String profile(
 			@RequestParam(name = "name", required = false, defaultValue = "none")String name,
 			@RequestParam(name = "age",  required = false,defaultValue="0")Integer age,
 			@RequestParam(name = "occupation",  required = false,defaultValue="none")String occupation,
@@ -81,5 +90,5 @@ public class TodoController
 		model.addAttribute("age",age);
 		model.addAttribute("occupation",occupation);
 		return "profile";
-	}
+	}	 
 }

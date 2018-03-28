@@ -10,18 +10,34 @@
 	src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script
 	src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-
+<style>body{
+        background-color: white;
+        }
+        </style>
 </head>
 <body>
 	<div class="container">
+
 		<div class="row">
 			<h2>
 				To Do Manager <small class="text-muted"> - a simple to use to do task manager</small>
 			</h2>
+			<div>
+			<form th:action="@{/logout}" method="post">
+				<span style="float:right"><input type="submit" class="btn btn-success" value="Sign Out" /></span>
+			</form>
+			</div>	
 			<h3><br/> To Do Categories:</h3>
 			
 		</div>
-
+	<form action="/todos" method="post">
+	Category: <input type="text" id="Category" name="Category" value=" " ><button onclick="getData()">Add</button>
+	<p>Click add to add a new category</p></form>
+	<script>
+	function getData() {
+	    var input = document.getElementById("Category").value;	   
+	}
+</script>	
 		<div class="row">
 			<div class="col-md-4">
 				<ul class="list-group">

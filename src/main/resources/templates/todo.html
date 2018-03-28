@@ -10,11 +10,22 @@
 	src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script
 	src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-
+<style>body{
+        background-color: white;
+        }
+        </style>
 </head>
 <body>
 	<div class="container">
 		<div class="row">
+		<h2>
+				To Do Manager <small class="text-muted"> - a simple to use to do task manager</small>
+			</h2>
+			<div class="container">
+				<form th:action="@{/logout}" method="post">
+				<span style="float:right"><input type="submit" class="btn btn-success" value="Sign Out" /></span>
+			</form>
+		</div>
 			<h3>Tasks To Do:</h3>
 		</div>
 
