@@ -3,9 +3,11 @@ package com.harsha.todolist;
 import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PathVariable;
 
@@ -13,6 +15,7 @@ import com.harsha.todolist.TodoTaskDTO;
 import com.harsha.todolist.Entities.Todo;
 import com.harsha.todolist.Entities.TodoTask;
 import com.harsha.todolist.Repositories.TodoRepository;
+import com.harsha.todolist.Security.CustomUserDetails;
 import com.harsha.todolist.TodoDTO;
 
 
@@ -34,16 +37,22 @@ public class TodoController
 		return "greeting";
 	}
 	@GetMapping("/todos")
-	public String todos(Model model) {
-		model.addAttribute("todos",getDataFromDatabase());
+	public String todos(Model model,Authentication authentication) {
+		model.addAttribute("todos",getDataFromDatabase(getUserId(authentication)));
 		return "todos";
 	}
-	private List<TodoDTO> getDataFromDatabase() {
+	private List<TodoDTO> getDataFromDatabase(Integer userId) {
 		List<Todo> todo = todorepository.findAll();
-		List<TodoDTO> tododto = new ArrayList<TodoDTO>();
+		List<Todo> todobyid = new ArrayList<Todo>();
 		for(int i=0;i<todo.size();i++)
+		{		
+			if(todo.get(i).getUserId()==userId)
+				todobyid.add(todo.get(i));
+		}
+		List<TodoDTO> tododto = new ArrayList<TodoDTO>();
+		for(int i=0;i<todobyid.size();i++)
 		{
-			tododto.add(mapToTaskDTO(todo.get(i)));
+			tododto.add(mapToTaskDTO(todobyid.get(i)));
 		}
 		return tododto;
 }
@@ -80,6 +89,14 @@ public class TodoController
 		}
 		return tododto;
 	}
+	@ModelAttribute("userId")
+	public Integer getUserId(Authentication authentication) {
+		CustomUserDetails customUser = (CustomUserDetails) authentication
+				.getPrincipal();
+		System.out.println("current logged in user id: "
+				+ customUser.getUserId());
+		return customUser.getUserId();
+	}
 		@GetMapping("/profile")
 		public String profile(
 			@RequestParam(name = "name", required = false, defaultValue = "none")String name,
@@ -90,5 +107,7 @@ public class TodoController
 		model.addAttribute("age",age);
 		model.addAttribute("occupation",occupation);
 		return "profile";
+		
+		
 	}	 
 }

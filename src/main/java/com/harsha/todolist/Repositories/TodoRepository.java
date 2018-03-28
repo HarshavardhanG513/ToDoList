@@ -9,4 +9,6 @@ import com.harsha.todolist.Entities.Todo;
 @Component
 public interface TodoRepository extends JpaRepository<Todo,Integer>, JpaSpecificationExecutor<Todo>{
 
+	
+
 }
